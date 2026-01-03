@@ -73,6 +73,11 @@ export default function Home() {
       icon: <IconTool className="h-4 w-4 text-neutral-500 dark:text-white" />,
     },
     {
+      name: "Gallery",
+      link: "/gallery",
+      icon: <IconTool className="h-4 w-4 text-neutral-500 dark:text-white" />,
+    },
+    {
       name: "Contact",
       link: "#contact",
       icon: <IconMessage className="h-4 w-4 text-neutral-500 dark:text-white" />,
@@ -80,12 +85,17 @@ export default function Home() {
   ];
 
   return (
-    <main className="relative bg-white dark:bg-black min-h-screen w-full overflow-hidden">
+    <main className="relative bg-white dark:bg-black min-h-screen w-full overflow-hidden pt-32">
       <FloatingNav navItems={navItems} />
 
       {/* Hero Section */}
       <section id="home">
         <ImagesSlider className="h-[40rem]" images={[
+          "/hero-main.jpg",
+          "/gallery/IMG-20260103-WA0030.jpg",
+          "/gallery/IMG-20260103-WA0050.jpg",
+          "/gallery/IMG-20260103-WA0075.jpg",
+          "/gallery/IMG-20260103-WA0100.jpg",
           "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=3270&auto=format&fit=crop",
           "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2669&auto=format&fit=crop",
           "https://images.unsplash.com/photo-1505798577917-a651a5d40318?q=80&w=3272&auto=format&fit=crop",

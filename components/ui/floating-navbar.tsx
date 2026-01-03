@@ -1,14 +1,15 @@
 "use client";
-import React, { JSX, useState } from "react";
+import React, { useState, JSX } from "react";
 import {
     motion,
     AnimatePresence,
     useScroll,
-    useMotionValueEvent,
+    useTransform,
 } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { IconMenu2, IconX } from "@tabler/icons-react";
+import { usePathname } from "next/navigation";
 
 export const FloatingNav = ({
     navItems,
@@ -21,91 +22,102 @@ export const FloatingNav = ({
     }[];
     className?: string;
 }) => {
-    const { scrollYProgress } = useScroll();
-    const [visible, setVisible] = useState(true);
-    const [isOpen, setIsOpen] = useState(false);
+    const { scrollY } = useScroll();
+    const [menuOpen, setMenuOpen] = useState(false);
+    const pathname = usePathname();
 
-    useMotionValueEvent(scrollYProgress, "change", (current) => {
-        if (typeof current === "number") {
-            let direction = current - scrollYProgress.getPrevious()!;
+    // Transform values for the navbar container
+    // Increased range to 500 to slow down the transition (as per user request reference)
+    const width = useTransform(scrollY, [0, 500], ["100%", "50%"]);
+    const marginTop = useTransform(scrollY, [0, 500], ["0px", "20px"]);
+    const borderRadius = useTransform(scrollY, [0, 500], ["0px", "100px"]);
+    const backgroundColor = useTransform(
+        scrollY,
+        [0, 500],
+        ["rgba(255, 255, 255, 0)", "rgba(255, 255, 255, 0.8)"]
+    );
+    const backdropFilter = useTransform(scrollY, [0, 500], ["blur(0px)", "blur(10px)"]);
+    const border = useTransform(
+        scrollY,
+        [0, 500],
+        ["1px solid rgba(0,0,0,0)", "1px solid rgba(0,0,0,0.1)"]
+    );
+    const paddingY = useTransform(scrollY, [0, 500], ["20px", "12px"]);
 
-            if (scrollYProgress.get() < 0.05) {
-                setVisible(true);
-            } else {
-                if (direction < 0) {
-                    setVisible(true);
-                } else {
-                    setVisible(false);
-                    setIsOpen(false); // Close mobile menu on scroll down
-                }
-            }
-        }
-    });
+    const toggleMenu = () => setMenuOpen(!menuOpen);
 
     return (
-        <AnimatePresence mode="wait">
-            <motion.div
-                initial={{
-                    opacity: 1,
-                    y: -100,
-                }}
-                animate={{
-                    y: visible ? 0 : -100,
-                    opacity: visible ? 1 : 0,
-                }}
-                transition={{
-                    duration: 0.2,
+        <div className="fixed top-0 left-0 right-0 z-[5000] flex justify-center pointer-events-none">
+            <motion.header
+                style={{
+                    width,
+                    marginTop,
+                    borderRadius,
+                    backgroundColor,
+                    backdropFilter,
+                    border,
+                    paddingTop: paddingY,
+                    paddingBottom: paddingY,
                 }}
                 className={cn(
-                    "flex max-w-5xl fixed top-4 inset-x-0 mx-auto border border-transparent dark:border-white/[0.2] rounded-full dark:bg-black bg-white shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] z-[5000] px-8 py-4 items-center justify-between space-x-4",
+                    "pointer-events-auto transition-shadow duration-300 flex items-center justify-between dark:bg-black/90 dark:border-white/20",
                     className
                 )}
             >
-                {/* Brand Name */}
-                <Link href="/" className="text-xl font-bold text-neutral-800 dark:text-white mr-4">
-                    GCA Construction
-                </Link>
+                <div className="flex justify-between items-center w-full max-w-7xl mx-auto px-6 md:px-12">
+                    {/* Brand Name */}
+                    <Link href="/" className="flex items-center gap-2 group">
+                        <img src="/logo-clean.png" alt="GCA Construction Logo" className="h-16 md:h-24 w-auto object-contain transition-transform duration-300 group-hover:scale-105" /><span>GCA Construction</span>
+                    </Link>
 
-                {/* Desktop Menu */}
-                <div className="hidden sm:flex items-center space-x-4">
-                    {navItems.map((navItem: any, idx: number) => (
-                        <Link
-                            key={`link=${idx}`}
-                            href={navItem.link}
-                            className={cn(
-                                "relative dark:text-neutral-50 items-center flex space-x-1 text-neutral-600 dark:hover:text-neutral-300 hover:text-neutral-500"
-                            )}
-                        >
-                            <span className="block sm:hidden">{navItem.icon}</span>
-                            <span className="hidden sm:block text-sm">{navItem.name}</span>
-                        </Link>
-                    ))}
+                    {/* Desktop Menu */}
+                    <nav className="hidden md:flex items-center space-x-8">
+                        {navItems.map((navItem: any, idx: number) => (
+                            <Link
+                                key={`link=${idx}`}
+                                href={navItem.link}
+                                className={cn(
+                                    "text-sm font-medium transition-colors relative group text-neutral-600 dark:text-neutral-300 hover:text-blue-600 dark:hover:text-blue-400"
+                                )}
+                            >
+                                <span className="flex items-center gap-1">
+                                    {navItem.name}
+                                </span>
+                                {/* Underline animation */}
+                                {pathname === navItem.link && (
+                                    <motion.div
+                                        layoutId="underline"
+                                        className="absolute left-0 right-0 -bottom-1 h-0.5 bg-blue-600 dark:bg-blue-400 rounded-full"
+                                    />
+                                )}
+                            </Link>
+                        ))}
+                    </nav>
 
-                </div>
-
-                {/* Mobile Menu Toggle */}
-                <div className="flex sm:hidden items-center justify-between w-full">
-                    <span className="font-bold text-sm">Menu</span>
-                    <button onClick={() => setIsOpen(!isOpen)} className="p-2">
-                        {isOpen ? <IconX size={20} /> : <IconMenu2 size={20} />}
+                    {/* Mobile Menu Toggle */}
+                    <button
+                        className="md:hidden p-2 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
+                        onClick={toggleMenu}
+                    >
+                        {menuOpen ? <IconX size={24} /> : <IconMenu2 size={24} />}
                     </button>
                 </div>
 
                 {/* Mobile Dropdown */}
                 <AnimatePresence>
-                    {isOpen && (
+                    {menuOpen && (
                         <motion.div
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
-                            className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-2xl overflow-hidden shadow-xl sm:hidden flex flex-col p-4 gap-4"
+                            className="absolute top-full left-0 right-0 mt-2 mx-4 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-2xl overflow-hidden shadow-xl md:hidden flex flex-col p-4 gap-4"
                         >
                             {navItems.map((navItem: any, idx: number) => (
                                 <Link
                                     key={`mobile-link=${idx}`}
                                     href={navItem.link}
-                                    onClick={() => setIsOpen(false)}
-                                    className="text-neutral-600 dark:text-neutral-300 hover:text-black dark:hover:text-white block"
+                                    onClick={() => setMenuOpen(false)}
+                                    className="text-neutral-600 dark:text-neutral-300 hover:text-black dark:hover:text-white block py-2"
                                 >
                                     <div className="flex items-center gap-2">
                                         {navItem.icon}
@@ -113,12 +125,11 @@ export const FloatingNav = ({
                                     </div>
                                 </Link>
                             ))}
-
                         </motion.div>
                     )}
                 </AnimatePresence>
 
-            </motion.div>
-        </AnimatePresence>
+            </motion.header>
+        </div>
     );
 };
