@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "GCA Construction Ltd",
   description: "Your trusted partner in plumbing, pipefitting, and welding solutions",
+  icons: {
+    icon: "/icon.png",
+  },
 };
 
 export default function RootLayout({

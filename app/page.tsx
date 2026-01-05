@@ -211,13 +211,13 @@ export default function Home() {
               id: 2,
               content: <div className="font-bold text-4xl text-white">Industrial Installation</div>,
               className: "col-span-1",
-              thumbnail: "https://images.unsplash.com/photo-1505798577917-a651a5d40318?q=80&w=3272&auto=format&fit=crop"
+              thumbnail: "/gallery/IMG-20260103-WA0050.jpg"
             },
             {
               id: 3,
               content: <div className="font-bold text-4xl text-white">Residential Renovation</div>,
               className: "col-span-1",
-              thumbnail: "https://images.unsplash.com/photo-1581094794329-cd1096d47250?q=80&w=3000&auto=format&fit=crop"
+              thumbnail: "/gallery/IMG-20260103-WA0075.jpg"
             },
             {
               id: 4,
